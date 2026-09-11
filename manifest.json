@@ -1,6 +1,6 @@
 {
-  "name": "Buku Tabungan Digital",
-  "short_name": "Tabungan",
+  "name": "Sakuva",
+  "short_name": "Sakuva",
   "description": "Tracker tabungan harian buat capai target belanja",
   "start_url": "./index.html",
   "display": "standalone",
