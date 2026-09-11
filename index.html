@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#6B5B95">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Buku Tabungan">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Buku Tabungan Digital</title>
+<meta name="theme-color" content="#6B5B95">
+<title>Buku Tabungan Digital</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --kraft: #EEE9F7;
+    --kraft-dark: #D9CFEC;
+    --ink-navy: #4A3F63;
+    --stamp-red: #C4818C;
+    --paper: #FDFCFE;
+    --ink-green: #6F9C82;
+    --ink-amber: #BE9A4E;
+    --ink-blue: #8290C7;
+    --ink-gold: #B8934A;
+    --purple: #8E7CC3;
+    --purple-deep: #6B5B95;
+    --purple-pale: #F1EDFA;
+    --line: rgba(107,91,149,0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 28px 14px;
+    background:
+      radial-gradient(at 15% 15%, rgba(216,196,240,0.9) 0, transparent 55%),
+      radial-gradient(at 85% 5%, rgba(190,170,230,0.85) 0, transparent 55%),
+      radial-gradient(at 0% 85%, rgba(232,213,245,0.85) 0, transparent 55%),
+      radial-gradient(at 85% 90%, rgba(160,140,205,0.85) 0, transparent 55%),
+      linear-gradient(135deg, #EDE6F8, #DCCBEE);
+    background-attachment: fixed;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink-navy);
+    min-height: 100vh;
+  }
+
+  .passbook {
+    max-width: 460px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(26px) saturate(180%);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(107,91,149,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
+    position: relative;
+  }
+
+  .cover { background: linear-gradient(135deg, rgba(142,124,195,0.78), rgba(107,91,149,0.78)); backdrop-filter: blur(6px); color: var(--paper); padding: 24px 24px 22px; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.25); }
+  .cover::after { content: ""; position: absolute; right: -30px; top: -30px; width: 130px; height: 130px; border: 2px solid rgba(255,255,255,0.12); border-radius: 50%; }
+  .cover-eyebrow { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; color: rgba(255,255,255,0.7); margin: 0 0 4px; }
+  .cover-title { font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 22px; margin: 0; }
+  .cover-goal-row { margin-top: 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .cover-goal-label { font-size: 11px; color: rgba(255,255,255,0.75); }
+  .cover-goal-edit { background: none; border: none; color: rgba(255,255,255,0.65); font-family: 'Inter', sans-serif; font-size: 11px; text-decoration: underline; cursor: pointer; padding: 2px; }
+  .goal-edit-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .goal-edit-row input { width: 100%; font-family: 'Inter', sans-serif; font-size: 13px; padding: 10px 11px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: var(--paper); }
+  .goal-edit-row input::placeholder { color: rgba(255,255,255,0.6); }
+  .goal-edit-row button { width: 100%; background: rgba(255,255,255,0.2); color: var(--paper); border: none; border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  .balance-block { padding: 22px 24px 18px; border-bottom: 1px solid rgba(255,255,255,0.4); }
+  .balance-label { font-size: 11px; color: var(--ink-navy); opacity: 0.55; margin: 0 0 4px; letter-spacing: 0.03em; }
+  .balance-amount { font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 32px; margin: 0; color: var(--purple-deep); letter-spacing: -0.01em; }
+  .balance-sub { font-size: 12px; margin-top: 6px; color: var(--ink-green); }
+
+  .mark-achieved-btn {
+    width: 100%; margin-top: 12px; background: var(--ink-gold); color: var(--paper);
+    border: none; border-radius: 12px; padding: 11px; font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 13px;
+    cursor: pointer; letter-spacing: 0.01em;
+  }
+  .mark-achieved-btn:hover { background: #a67f3c; }
+
+  .gauge-wrap { margin: 16px 0 2px; }
+  .gauge-track { height: 10px; background: var(--purple-pale); border-radius: 6px; position: relative; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--purple), var(--ink-green)); transition: width 0.5s ease; }
+  .gauge-meta { display: flex; justify-content: space-between; font-size: 10.5px; margin-top: 6px; color: var(--ink-navy); opacity: 0.65; }
+
+  .summary-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .summary-card { border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; padding: 9px 11px; background: rgba(255,255,255,0.3); }
+  .summary-card .lbl { font-size: 9.5px; opacity: 0.6; margin: 0 0 3px; letter-spacing: 0.02em; }
+  .summary-card .val { font-size: 13px; font-weight: 700; margin: 0; }
+  .summary-card.kebutuhan .val { color: var(--ink-amber); }
+  .summary-card.darurat .val { color: var(--stamp-red); }
+
+  .entry-form { padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.4); }
+  .form-label { font-size: 11px; opacity: 0.6; display: block; margin-bottom: 2px; font-weight: 600; letter-spacing: 0.02em; }
+  .form-date { font-size: 10.5px; opacity: 0.45; margin: 0 0 12px; }
+  .step-label { font-size: 10px; opacity: 0.5; margin: 0 0 6px; letter-spacing: 0.04em; font-weight: 600; }
+
+  .type-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .type-tab { flex: 1; background: rgba(255,255,255,0.42); border: 1px solid var(--line); border-radius: 10px; color: var(--ink-navy); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; padding: 10px 4px; cursor: pointer; opacity: 0.55; }
+  .type-tab:hover { opacity: 0.85; }
+  .type-tab.active { opacity: 1; border-width: 1.5px; font-weight: 700; }
+  .type-tab.tabungan.active { border-color: var(--ink-green); color: var(--ink-green); background: rgba(111,156,130,0.08); }
+  .type-tab.kebutuhan.active { border-color: var(--ink-amber); color: var(--ink-amber); background: rgba(190,154,78,0.08); }
+  .type-tab.darurat.active { border-color: var(--stamp-red); color: var(--stamp-red); background: rgba(196,129,140,0.08); }
+
+  .direction-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .direction-tab {
+    flex: 1; border: 1.5px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.42); color: var(--ink-navy);
+    font-family: 'Zen Maru Gothic', sans-serif; font-weight: 600; font-size: 13px; padding: 11px 4px; cursor: pointer; opacity: 0.5;
+  }
+  .direction-tab:hover { opacity: 0.85; }
+  .direction-tab.pemasukan.active { opacity: 1; border-color: var(--ink-green); color: var(--ink-green); background: rgba(111,156,130,0.08); }
+  .direction-tab.pengeluaran.active { opacity: 1; border-color: var(--stamp-red); color: var(--stamp-red); background: rgba(196,129,140,0.08); }
+
+  .amount-row { position: relative; border: 1.5px solid var(--purple); border-radius: 10px; background: rgba(255,255,255,0.42); margin-bottom: 8px; }
+  .amount-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); background: transparent; color: var(--purple); font-size: 14px; font-weight: 700; pointer-events: none; }
+  .amount-input { width: 100%; border: none; padding: 11px 12px 11px 34px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink-navy); background: transparent; border-radius: 10px; }
+  .amount-input:focus { outline: none; }
+
+  .preset-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .preset-btn { flex: 1; background: var(--purple-pale); border: 1px solid var(--line); border-radius: 8px; color: var(--purple-deep); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; padding: 7px 4px; cursor: pointer; }
+  .preset-btn:hover { background: #e6ddf5; }
+  .preset-btn.active { background: var(--purple); color: var(--paper); border-color: var(--purple); }
+
+  .note-input { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--ink-navy); background: rgba(255,255,255,0.42); margin-bottom: 10px; }
+  .note-input:focus { outline: none; border-color: var(--purple); }
+
+  .submit-btn { width: 100%; color: var(--paper); border: none; border-radius: 12px; padding: 12px; font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.01em; cursor: pointer; background: var(--purple-deep); }
+  .submit-btn.pemasukan { background: var(--ink-green); }
+  .submit-btn.pengeluaran { background: var(--stamp-red); }
+  .submit-btn.transfer { background: var(--ink-blue); }
+
+  .transfer-row { display: flex; align-items: end; gap: 8px; margin-bottom: 10px; }
+  .transfer-field { flex: 1; }
+  .transfer-field label { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 4px; font-weight: 600; }
+  .pos-select {
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--ink-navy);
+    background: rgba(255,255,255,0.42); border: 1.5px solid var(--purple); border-radius: 10px; padding: 10px 8px; cursor: pointer;
+  }
+  .transfer-arrow { font-size: 16px; color: var(--ink-blue); padding-bottom: 10px; font-weight: 700; }
+
+  .ledger-badge.transfer-tag { color: var(--ink-blue); border-color: var(--ink-blue); }
+
+  .ledger { padding: 16px 24px 22px; }
+  .ledger-title-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .ledger-title { font-size: 11px; opacity: 0.55; margin: 0; font-weight: 600; letter-spacing: 0.02em; }
+  .ledger-reset { background: none; border: none; font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--purple-deep); text-decoration: underline; opacity: 0.7; cursor: pointer; padding: 0; display: none; }
+  .ledger-reset.show { display: inline; }
+
+  .date-filter-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .month-select {
+    flex: 1; font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--ink-navy);
+    background: rgba(255,255,255,0.42); border: 1.5px solid var(--purple); border-radius: 10px; padding: 8px 7px; cursor: pointer;
+  }
+  .date-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .date-chips.hidden { display: none; }
+  .date-chip {
+    background: rgba(255,255,255,0.42); border: 1px solid var(--line); border-radius: 8px; color: var(--ink-navy);
+    font-family: 'Inter', sans-serif; font-size: 10.5px; padding: 5px 9px; cursor: pointer; opacity: 0.6;
+  }
+  .date-chip:hover { opacity: 1; }
+  .date-chip.has-data { border-color: var(--purple); opacity: 0.9; font-weight: 700; color: var(--purple-deep); }
+  .date-chip.active { opacity: 1; background: var(--purple); color: var(--paper); border-color: var(--purple); font-weight: 700; }
+
+  .ledger-row { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.4); font-size: 12.5px; }
+  .ledger-row:last-child { border-bottom: none; }
+  .ledger-date { opacity: 0.5; font-size: 11px; padding-top: 1px; }
+  .ledger-mid { min-width: 0; }
+
+  .ledger-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; margin-bottom: 3px; margin-right: 4px; border-radius: 6px; border: 1px solid; cursor: pointer; }
+  .ledger-badge.tabungan { color: var(--ink-green); border-color: var(--ink-green); }
+  .ledger-badge.kebutuhan { color: var(--ink-amber); border-color: var(--ink-amber); }
+  .ledger-badge.darurat { color: var(--stamp-red); border-color: var(--stamp-red); }
+
+  .ledger-note { display: block; color: var(--ink-navy); opacity: 0.6; font-size: 11.5px; font-style: italic; }
+  .ledger-note.empty { display: none; }
+
+  .ledger-amount { font-weight: 700; white-space: nowrap; text-align: right; }
+  .ledger-amount.pemasukan { color: var(--ink-green); }
+  .ledger-amount.pengeluaran { color: var(--stamp-red); }
+
+  .ledger-del { grid-column: 1 / -1; justify-self: end; background: none; border: none; color: var(--stamp-red); font-size: 10px; cursor: pointer; opacity: 0.5; padding: 0; margin-top: 2px; }
+  .ledger-del:hover { opacity: 1; }
+
+  .empty-state { font-size: 12px; opacity: 0.5; padding: 8px 0; text-align: center; }
+
+  .achievements { padding: 4px 24px 22px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .achievement-row {
+    display: flex; align-items: center; gap: 10px; padding: 11px 13px; margin-bottom: 8px;
+    border: 1px solid rgba(184,147,74,0.5); border-radius: 12px; background: rgba(184,147,74,0.1);
+  }
+  .achievement-icon { font-size: 18px; }
+  .achievement-info { flex: 1; min-width: 0; }
+  .achievement-label { font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink-gold); margin: 0; }
+  .achievement-meta { font-size: 10.5px; opacity: 0.6; margin: 2px 0 0; }
+  .achievement-del {
+    background: none; border: none; color: var(--stamp-red); font-size: 10px;
+    cursor: pointer; opacity: 0.5; padding: 0; white-space: nowrap;
+  }
+  .achievement-del:hover { opacity: 1; }
+
+  .stamp { display: none; }
+
+  .status-msg { font-size: 11px; text-align: center; padding: 6px 0 0; opacity: 0.6; min-height: 16px; }
+
+  .watermark { text-align: center; font-size: 10px; letter-spacing: 0.03em; color: var(--purple-deep); opacity: 0.5; padding: 8px 0 16px; font-family: 'Inter', sans-serif; }
+
+  .deco-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+
+  .deco-butterfly { position: absolute; }
+  .deco-bf1 { top: 6px; left: 8%; animation: bfFloat1 13s ease-in-out infinite alternate; }
+  .deco-bf2 { top: 16px; left: 38%; animation: bfFloat2 16s ease-in-out infinite alternate; animation-delay: -4s; }
+  .deco-bf3 { top: 4px; left: 64%; animation: bfFloat1 15s ease-in-out infinite alternate; animation-delay: -7s; }
+  .deco-bf4 { top: 12px; right: 6%; animation: bfFloat2 12s ease-in-out infinite alternate; animation-delay: -2s; }
+
+  @keyframes bfFloat1 {
+    0%   { transform: translate(0,0) rotate(-6deg); }
+    50%  { transform: translate(10px,-8px) rotate(8deg); }
+    100% { transform: translate(-6px,-3px) rotate(-4deg); }
+  }
+  @keyframes bfFloat2 {
+    0%   { transform: translate(0,0) rotate(5deg); }
+    50%  { transform: translate(-8px,-6px) rotate(-7deg); }
+    100% { transform: translate(5px,4px) rotate(4deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="passbook">
+  <div class="cover">
+    <p class="cover-eyebrow">BUKU TABUNGAN DIGITAL</p>
+    <h1 class="cover-title" id="goalLabel">Monitor Baru</h1>
+    <div class="cover-goal-row">
+      <span class="cover-goal-label" id="goalTargetText">Target: Rp2.000.000</span>
+      <button class="cover-goal-edit" id="editGoalBtn">ubah target</button>
+    </div>
+    <div id="goalEditForm" style="display:none;" class="goal-edit-row">
+      <input type="text" id="goalLabelInput" placeholder="Nama barang">
+      <input type="number" id="goalTargetInput" placeholder="Target (Rp)">
+      <button id="saveGoalBtn">Simpan</button>
+    </div>
+  </div>
+
+  <div class="stamp">LUNAS<br>NANTI</div>
+
+  <div class="balance-block">
+    <p class="balance-label">TOTAL TABUNGAN</p>
+    <p class="balance-amount" id="totalAmount">Rp0</p>
+    <p class="balance-sub" id="balanceSub">Ayo mulai nabung hari ini</p>
+    <button class="mark-achieved-btn" id="markAchievedBtn" style="display:none;">🎉 Tandai Tercapai & Mulai Target Baru</button>
+
+    <div class="gauge-wrap">
+      <div class="gauge-track"><div class="gauge-fill" id="gaugeFill" style="width:0%"></div></div>
+      <div class="gauge-meta">
+        <span id="gaugePercent">0%</span>
+        <span id="gaugeRemaining">Sisa Rp2.000.000</span>
+      </div>
+    </div>
+
+    <div class="summary-strip">
+      <div class="summary-card kebutuhan">
+        <p class="lbl">SALDO KEBUTUHAN</p>
+        <p class="val" id="totalKebutuhan">Rp0</p>
+      </div>
+      <div class="summary-card darurat">
+        <p class="lbl">SALDO DARURAT</p>
+        <p class="val" id="totalDarurat">Rp0</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="entry-form">
+    <span class="form-label">CATAT TRANSAKSI</span>
+    <p class="form-date" id="todayDateText"></p>
+
+    <p class="step-label">1. PILIH POS</p>
+    <div class="type-tabs">
+      <button class="type-tab tabungan active" data-type="tabungan">Tabungan</button>
+      <button class="type-tab kebutuhan" data-type="kebutuhan">Kebutuhan</button>
+      <button class="type-tab darurat" data-type="darurat">Darurat</button>
+    </div>
+
+    <p class="step-label">2. PEMASUKAN ATAU PENGELUARAN?</p>
+    <div class="direction-tabs">
+      <button class="direction-tab pemasukan active" data-dir="pemasukan">+ Pemasukan</button>
+      <button class="direction-tab pengeluaran" data-dir="pengeluaran">− Pengeluaran</button>
+    </div>
+
+    <div class="amount-row">
+      <span class="amount-prefix">Rp</span>
+      <input type="number" class="amount-input" id="amountInput" placeholder="0" min="0" step="1000">
+    </div>
+
+    <div class="preset-row" id="presetRow"></div>
+
+    <input type="text" class="note-input" id="noteInput" placeholder="Catatan (opsional) — misal: ban bocor, skip rokok">
+    <button class="submit-btn pemasukan" id="addBtn">Catat Pemasukan</button>
+    <p class="status-msg" id="statusMsg"></p>
+  </div>
+
+  <div class="entry-form transfer-form">
+    <span class="form-label">PINDAHIN SALDO ANTAR POS</span>
+    <p class="form-date">Misal sisa Darurat/Kebutuhan mau digeser ke Tabungan</p>
+
+    <div class="transfer-row">
+      <div class="transfer-field">
+        <label>Dari</label>
+        <select class="pos-select" id="transferFrom">
+          <option value="darurat">Darurat</option>
+          <option value="kebutuhan">Kebutuhan</option>
+          <option value="tabungan">Tabungan</option>
+        </select>
+      </div>
+      <span class="transfer-arrow">→</span>
+      <div class="transfer-field">
+        <label>Ke</label>
+        <select class="pos-select" id="transferTo">
+          <option value="tabungan">Tabungan</option>
+          <option value="kebutuhan">Kebutuhan</option>
+          <option value="darurat">Darurat</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="amount-row">
+      <span class="amount-prefix">Rp</span>
+      <input type="number" class="amount-input" id="transferAmountInput" placeholder="0" min="0" step="1000">
+    </div>
+
+    <input type="text" class="note-input" id="transferNoteInput" placeholder="Catatan (opsional) — misal: gak kepake minggu ini">
+    <button class="submit-btn transfer" id="transferBtn">Transfer Sekarang</button>
+    <p class="status-msg" id="transferStatusMsg"></p>
+  </div>
+
+  <div class="ledger">
+    <div class="ledger-title-row">
+      <p class="ledger-title" id="ledgerTitle">RIWAYAT TRANSAKSI</p>
+      <button class="ledger-reset" id="ledgerReset">tampilkan semua</button>
+    </div>
+    <div class="date-filter-row">
+      <select class="month-select" id="monthSelect">
+        <option value="semua">Semua Bulan</option>
+      </select>
+    </div>
+    <div class="date-chips" id="dateChips"></div>
+    <div id="entriesList">
+      <p class="empty-state">Belum ada catatan. Mulai catat hari ini.</p>
+    </div>
+  </div>
+
+  <div class="achievements" id="achievementsSection" style="display:none;">
+    <p class="ledger-title">PENCAPAIAN</p>
+    <div id="achievementsList"></div>
+  </div>
+
+  <div class="watermark">Created by Devarim with Claude</div>
+
+  <div class="deco-layer" aria-hidden="true">
+    <svg class="deco-butterfly deco-bf1" viewBox="0 0 32 32" width="15" height="15">
+      <path d="M16,14 C8,2 -2,4 2,14 C4,20 12,18 16,14 Z" fill="#F1EDFA" opacity="0.92"/>
+      <path d="M16,14 C24,2 34,4 30,14 C28,20 20,18 16,14 Z" fill="#F1EDFA" opacity="0.92"/>
+      <path d="M16,15 C11,21 5,23 6,28 C8,31 14,25 16,15 Z" fill="#B8ABDA" opacity="0.85"/>
+      <path d="M16,15 C21,21 27,23 26,28 C24,31 18,25 16,15 Z" fill="#B8ABDA" opacity="0.85"/>
+      <rect x="15" y="8" width="2" height="18" rx="1" fill="#6B5B95"/>
+      <path d="M15,9 C12,6 10,5 9,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+      <path d="M17,9 C20,6 22,5 23,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+    </svg>
+
+    <svg class="deco-butterfly deco-bf2" viewBox="0 0 32 32" width="13" height="13">
+      <path d="M16,14 C8,2 -2,4 2,14 C4,20 12,18 16,14 Z" fill="#EEE9F7" opacity="0.88"/>
+      <path d="M16,14 C24,2 34,4 30,14 C28,20 20,18 16,14 Z" fill="#EEE9F7" opacity="0.88"/>
+      <path d="M16,15 C11,21 5,23 6,28 C8,31 14,25 16,15 Z" fill="#C9BFE8" opacity="0.8"/>
+      <path d="M16,15 C21,21 27,23 26,28 C24,31 18,25 16,15 Z" fill="#C9BFE8" opacity="0.8"/>
+      <rect x="15" y="8" width="2" height="18" rx="1" fill="#6B5B95"/>
+      <path d="M15,9 C12,6 10,5 9,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+      <path d="M17,9 C20,6 22,5 23,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+    </svg>
+
+    <svg class="deco-butterfly deco-bf3" viewBox="0 0 32 32" width="17" height="17">
+      <path d="M16,14 C8,2 -2,4 2,14 C4,20 12,18 16,14 Z" fill="#F1EDFA" opacity="0.9"/>
+      <path d="M16,14 C24,2 34,4 30,14 C28,20 20,18 16,14 Z" fill="#F1EDFA" opacity="0.9"/>
+      <path d="M16,15 C11,21 5,23 6,28 C8,31 14,25 16,15 Z" fill="#A996D6" opacity="0.85"/>
+      <path d="M16,15 C21,21 27,23 26,28 C24,31 18,25 16,15 Z" fill="#A996D6" opacity="0.85"/>
+      <rect x="15" y="8" width="2" height="18" rx="1" fill="#6B5B95"/>
+      <path d="M15,9 C12,6 10,5 9,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+      <path d="M17,9 C20,6 22,5 23,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+    </svg>
+
+    <svg class="deco-butterfly deco-bf4" viewBox="0 0 32 32" width="14" height="14">
+      <path d="M16,14 C8,2 -2,4 2,14 C4,20 12,18 16,14 Z" fill="#EEE9F7" opacity="0.88"/>
+      <path d="M16,14 C24,2 34,4 30,14 C28,20 20,18 16,14 Z" fill="#EEE9F7" opacity="0.88"/>
+      <path d="M16,15 C11,21 5,23 6,28 C8,31 14,25 16,15 Z" fill="#B8ABDA" opacity="0.8"/>
+      <path d="M16,15 C21,21 27,23 26,28 C24,31 18,25 16,15 Z" fill="#B8ABDA" opacity="0.8"/>
+      <rect x="15" y="8" width="2" height="18" rx="1" fill="#6B5B95"/>
+      <path d="M15,9 C12,6 10,5 9,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+      <path d="M17,9 C20,6 22,5 23,3" stroke="#6B5B95" stroke-width="0.8" fill="none"/>
+    </svg>
+  </div>
+</div>
+
+<script>
+  // Shim window.storage pake localStorage biar app ini jalan sendiri (gak butuh Claude)
+  window.storage = {
+    async get(key, shared) {
+      const raw = localStorage.getItem(key);
+      if (raw === null) throw new Error('not found');
+      return { key, value: raw, shared: !!shared };
+    },
+    async set(key, value, shared) {
+      localStorage.setItem(key, value);
+      return { key, value, shared: !!shared };
+    },
+    async delete(key, shared) {
+      localStorage.removeItem(key);
+      return { key, deleted: true, shared: !!shared };
+    },
+    async list(prefix, shared) {
+      const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+      return { keys, prefix, shared: !!shared };
+    }
+  };
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
+  const GOAL_KEY = 'goal';
+  const ENTRIES_KEY = 'entries';
+  const ACHIEVEMENTS_KEY = 'achievements';
+  let goal = { label: '', target: 0 };
+  let entries = [];
+  let achievements = [];
+  let currentCategory = 'tabungan';
+  let currentDirection = 'pemasukan';
+  let historyFilter = 'semua';
+  let monthFilter = 'semua';
+  let dateFilter = null;
+
+  const monthNamesFull = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const categoryLabels = { tabungan: 'Tabungan', kebutuhan: 'Kebutuhan', darurat: 'Darurat' };
+  const directionLabels = { pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran' };
+  const presets = {
+    'tabungan_pemasukan': [10000, 20000, 25000],
+    'kebutuhan_pemasukan': [20000, 25000, 50000],
+    'darurat_pemasukan': [5000, 10000, 15000]
+  };
+
+  function formatRp(n) { return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
+  }
+
+  function todayISO() { return new Date().toISOString(); }
+
+  function monthKey(iso) {
+    const d = new Date(iso);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
+  function dayKey(iso) {
+    const d = new Date(iso);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function setTodayText() {
+    const d = new Date();
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    document.getElementById('todayDateText').textContent =
+      'Tanggal otomatis: ' + days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function normalizeEntry(e) {
+    // migration fallback for entries saved before this version
+    if (e.category && e.direction) return e;
+    let category = e.type;
+    let direction = 'pengeluaran';
+    if (e.type === 'tabungan') direction = 'pemasukan';
+    else if (e.type === 'pemasukan') { category = 'kebutuhan'; direction = 'pemasukan'; }
+    else if (e.type === 'pengeluaran') { category = 'kebutuhan'; direction = 'pengeluaran'; }
+    if (!['tabungan','kebutuhan','darurat'].includes(category)) category = 'kebutuhan';
+    return { ...e, category, direction };
+  }
+
+  async function loadData() {
+    try {
+      const g = await window.storage.get(GOAL_KEY, false);
+      if (g && g.value) goal = JSON.parse(g.value);
+    } catch (e) {}
+    try {
+      const e = await window.storage.get(ENTRIES_KEY, false);
+      if (e && e.value) entries = JSON.parse(e.value).map(normalizeEntry);
+    } catch (e) {}
+    try {
+      const a = await window.storage.get(ACHIEVEMENTS_KEY, false);
+      if (a && a.value) achievements = JSON.parse(a.value);
+    } catch (e) {}
+    render();
+
+    if (!goal.label || goal.target <= 0) {
+      document.getElementById('goalEditForm').style.display = 'flex';
+      document.getElementById('goalLabelInput').focus();
+    }
+  }
+
+  async function saveGoal() {
+    try { await window.storage.set(GOAL_KEY, JSON.stringify(goal), false); }
+    catch (e) { showStatus('Gagal menyimpan target, coba lagi.'); }
+  }
+
+  async function saveEntries() {
+    try { await window.storage.set(ENTRIES_KEY, JSON.stringify(entries), false); }
+    catch (e) { showStatus('Gagal menyimpan, coba lagi.'); }
+  }
+
+  async function saveAchievements() {
+    try { await window.storage.set(ACHIEVEMENTS_KEY, JSON.stringify(achievements), false); }
+    catch (e) { showStatus('Gagal menyimpan pencapaian, coba lagi.'); }
+  }
+
+  function showStatus(msg) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 2500);
+  }
+
+  function balances() {
+    return entries.reduce((acc, e) => {
+      const delta = e.direction === 'pemasukan' ? e.amount : -e.amount;
+      acc[e.category] = (acc[e.category] || 0) + delta;
+      return acc;
+    }, { tabungan: 0, kebutuhan: 0, darurat: 0 });
+  }
+
+  function renderPresets() {
+    const row = document.getElementById('presetRow');
+    const key = currentCategory + '_' + currentDirection;
+    const amts = presets[key];
+    if (!amts) { row.innerHTML = ''; row.style.display = 'none'; return; }
+    row.style.display = 'flex';
+    row.innerHTML = amts.map(a => `<button class="preset-btn" data-amt="${a}">Rp${(a/1000)}rb</button>`).join('');
+    row.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('amountInput').value = btn.dataset.amt;
+      });
+    });
+  }
+
+  function render() {
+    const hasGoal = !!goal.label && goal.target > 0;
+    document.getElementById('goalLabel').textContent = hasGoal ? goal.label : 'Tambahkan Impian ✨';
+    document.getElementById('goalTargetText').textContent = hasGoal
+      ? 'Target: ' + formatRp(goal.target)
+      : 'Klik "atur target" buat mulai nabung';
+    document.getElementById('editGoalBtn').textContent = hasGoal ? 'ubah target' : 'atur target';
+
+    const b = balances();
+    document.getElementById('totalAmount').textContent = formatRp(b.tabungan);
+    document.getElementById('totalKebutuhan').textContent = formatRp(b.kebutuhan);
+    document.getElementById('totalDarurat').textContent = formatRp(b.darurat);
+
+    const pct = goal.target > 0 ? Math.min(100, (b.tabungan / goal.target) * 100) : 0;
+    document.getElementById('gaugeFill').style.width = pct + '%';
+    document.getElementById('gaugePercent').textContent = Math.round(pct) + '%';
+
+    const remaining = Math.max(0, goal.target - b.tabungan);
+    const markBtn = document.getElementById('markAchievedBtn');
+    if (hasGoal && remaining === 0 && b.tabungan > 0) {
+      document.getElementById('gaugeRemaining').textContent = 'Target tercapai!';
+      document.getElementById('balanceSub').textContent = 'Selamat, ' + goal.label + ' udah kebeli!';
+      markBtn.style.display = 'block';
+    } else {
+      document.getElementById('gaugeRemaining').textContent = hasGoal ? 'Sisa ' + formatRp(remaining) : 'Belum ada target';
+      document.getElementById('balanceSub').textContent = !hasGoal
+        ? 'Yuk atur target impian lo dulu'
+        : entries.length === 0
+          ? 'Ayo mulai nabung hari ini'
+          : entries.length + ' transaksi tercatat';
+      markBtn.style.display = 'none';
+    }
+
+    const achSection = document.getElementById('achievementsSection');
+    const achList = document.getElementById('achievementsList');
+    if (achievements.length === 0) {
+      achSection.style.display = 'none';
+    } else {
+      achSection.style.display = 'block';
+      const sortedAch = [...achievements].sort((a, b2) => new Date(b2.date) - new Date(a.date));
+      achList.innerHTML = sortedAch.map(a => `
+        <div class="achievement-row">
+          <span class="achievement-icon">🏆</span>
+          <div class="achievement-info">
+            <p class="achievement-label">${escapeHtml(a.label)}</p>
+            <p class="achievement-meta">Tercapai ${formatDate(a.date)} · ${formatRp(a.target)}</p>
+          </div>
+          <button class="achievement-del" data-id="${a.id}">hapus</button>
+        </div>
+      `).join('');
+      achList.querySelectorAll('.achievement-del').forEach(btn => {
+        btn.addEventListener('click', () => deleteAchievement(btn.dataset.id));
+      });
+    }
+
+    const titleParts = [];
+    if (historyFilter !== 'semua') titleParts.push(categoryLabels[historyFilter].toUpperCase());
+    if (monthFilter !== 'semua') {
+      const [yy, mm] = monthFilter.split('-');
+      titleParts.push(monthNamesFull[parseInt(mm, 10) - 1].toUpperCase() + ' ' + yy);
+    }
+    if (dateFilter) {
+      const d = new Date(dateFilter);
+      titleParts.push(d.getDate() + ' ' + monthNamesFull[d.getMonth()].slice(0,3).toUpperCase());
+    }
+    document.getElementById('ledgerTitle').textContent = titleParts.length === 0
+      ? 'RIWAYAT TRANSAKSI'
+      : 'RIWAYAT — ' + titleParts.join(' · ');
+    document.getElementById('ledgerReset').classList.toggle('show', historyFilter !== 'semua');
+
+    // populate month dropdown: full year of months, plus any other years found in entries
+    const monthSelect = document.getElementById('monthSelect');
+    const currentYear = new Date().getFullYear();
+    const entryYears = [...new Set(entries.map(e => new Date(e.date).getFullYear()))];
+    const years = [...new Set([currentYear, ...entryYears])].sort();
+    const allMonths = [];
+    years.forEach(yr => {
+      for (let m = 1; m <= 12; m++) allMonths.push(yr + '-' + String(m).padStart(2, '0'));
+    });
+    monthSelect.innerHTML = '<option value="semua">Semua Bulan</option>' + allMonths.map(mk => {
+      const [yy, mm] = mk.split('-');
+      return `<option value="${mk}">${monthNamesFull[parseInt(mm,10)-1]} ${yy}</option>`;
+    }).join('');
+    monthSelect.value = monthFilter;
+
+    // date chips: every day of the selected month, regardless of whether it has entries
+    const chipsWrap = document.getElementById('dateChips');
+    if (monthFilter === 'semua') {
+      chipsWrap.classList.add('hidden');
+      chipsWrap.innerHTML = '';
+      if (dateFilter) dateFilter = null;
+    } else {
+      const [yy, mm] = monthFilter.split('-').map(Number);
+      const daysInMonth = new Date(yy, mm, 0).getDate();
+      const byCategory = historyFilter === 'semua' ? entries : entries.filter(e => e.category === historyFilter);
+      const datesWithEntries = new Set(byCategory.filter(e => monthKey(e.date) === monthFilter).map(e => dayKey(e.date)));
+      chipsWrap.classList.remove('hidden');
+      const chips = ['<button class="date-chip ' + (dateFilter ? '' : 'active') + '" data-date="semua">Semua tanggal</button>'];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dk = monthFilter + '-' + String(day).padStart(2, '0');
+        const active = dateFilter === dk ? 'active' : '';
+        const hasData = datesWithEntries.has(dk) ? 'has-data' : '';
+        chips.push(`<button class="date-chip ${active} ${hasData}" data-date="${dk}">${day}</button>`);
+      }
+      chipsWrap.innerHTML = chips.join('');
+      chipsWrap.querySelectorAll('.date-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          dateFilter = chip.dataset.date === 'semua' ? null : chip.dataset.date;
+          render();
+        });
+      });
+    }
+
+    let filtered = historyFilter === 'semua' ? entries : entries.filter(e => e.category === historyFilter);
+    if (monthFilter !== 'semua') filtered = filtered.filter(e => monthKey(e.date) === monthFilter);
+    if (dateFilter) filtered = filtered.filter(e => dayKey(e.date) === dateFilter);
+
+    const list = document.getElementById('entriesList');
+    if (filtered.length === 0) {
+      list.innerHTML = `<p class="empty-state">${entries.length === 0 ? 'Belum ada catatan. Mulai catat hari ini.' : 'Gak ada transaksi di rentang ini.'}</p>`;
+      return;
+    }
+    const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+    list.innerHTML = sorted.map(e => `
+      <div class="ledger-row">
+        <span class="ledger-date">${formatDate(e.date)}</span>
+        <div class="ledger-mid">
+          <span class="ledger-badge ${e.category}" data-filter="${e.category}">${categoryLabels[e.category]}</span>
+          ${e.isTransfer ? '<span class="ledger-badge transfer-tag">↔ Transfer</span>' : ''}
+          ${e.isAchievement ? '<span class="ledger-badge transfer-tag" style="color:var(--ink-gold);border-color:var(--ink-gold);">🎉 Tercapai</span>' : ''}
+          <span class="ledger-note ${e.note ? '' : 'empty'}">${e.note ? escapeHtml(e.note) : ''}</span>
+        </div>
+        <span class="ledger-amount ${e.direction}">${e.direction === 'pemasukan' ? '+' : '−'}${formatRp(e.amount)}</span>
+        <button class="ledger-del" data-id="${e.id}">hapus</button>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.ledger-del').forEach(btn => {
+      btn.addEventListener('click', () => deleteEntry(btn.dataset.id));
+    });
+    document.querySelectorAll('.ledger-badge').forEach(badge => {
+      badge.addEventListener('click', () => {
+        historyFilter = badge.dataset.filter;
+        render();
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function deleteEntry(id) {
+    const target = entries.find(e => e.id === id);
+    if (target && target.transferId) {
+      entries = entries.filter(e => e.transferId !== target.transferId);
+    } else {
+      entries = entries.filter(e => e.id !== id);
+    }
+    render();
+    await saveEntries();
+  }
+
+  async function deleteAchievement(id) {
+    achievements = achievements.filter(a => a.id !== id);
+    entries = entries.filter(e => e.id !== id + '-purchase');
+    render();
+    await saveAchievements();
+    await saveEntries();
+  }
+
+  function setCategory(cat) {
+    currentCategory = cat;
+    historyFilter = cat;
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === cat));
+    document.getElementById('amountInput').value = '';
+    renderPresets();
+    render();
+  }
+
+  function setDirection(dir) {
+    currentDirection = dir;
+    document.querySelectorAll('.direction-tab').forEach(t => t.classList.toggle('active', t.dataset.dir === dir));
+    const btn = document.getElementById('addBtn');
+    btn.textContent = 'Catat ' + directionLabels[dir];
+    btn.className = 'submit-btn ' + dir;
+    document.getElementById('amountInput').value = '';
+    renderPresets();
+  }
+
+  document.querySelectorAll('.type-tab').forEach(tab => {
+    tab.addEventListener('click', () => setCategory(tab.dataset.type));
+  });
+
+  document.querySelectorAll('.direction-tab').forEach(tab => {
+    tab.addEventListener('click', () => setDirection(tab.dataset.dir));
+  });
+
+  document.getElementById('ledgerReset').addEventListener('click', () => {
+    historyFilter = 'semua';
+    render();
+  });
+
+  document.getElementById('monthSelect').addEventListener('change', (ev) => {
+    monthFilter = ev.target.value;
+    dateFilter = null;
+    render();
+  });
+
+  document.getElementById('amountInput').addEventListener('input', () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  });
+
+  document.getElementById('addBtn').addEventListener('click', async () => {
+    const input = document.getElementById('amountInput');
+    const noteInput = document.getElementById('noteInput');
+    const amt = parseInt(input.value, 10);
+    if (!amt || amt <= 0) {
+      showStatus('Isi jumlahnya dulu ya.');
+      return;
+    }
+    entries.push({
+      id: Date.now().toString(),
+      category: currentCategory,
+      direction: currentDirection,
+      amount: amt,
+      note: noteInput.value.trim(),
+      date: todayISO()
+    });
+    input.value = '';
+    noteInput.value = '';
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    historyFilter = currentCategory;
+    render();
+    showStatus('Tersimpan.');
+    await saveEntries();
+  });
+
+  document.getElementById('markAchievedBtn').addEventListener('click', async function handler() {
+    const btn = document.getElementById('markAchievedBtn');
+    if (btn.disabled) return;
+    btn.disabled = true;
+
+    const b = balances();
+    const spendAmount = Math.min(goal.target, b.tabungan);
+    const achievement = { id: Date.now().toString(), label: goal.label, target: goal.target, date: todayISO() };
+    achievements.push(achievement);
+    entries.push({
+      id: achievement.id + '-purchase',
+      category: 'tabungan',
+      direction: 'pengeluaran',
+      amount: spendAmount,
+      note: 'Beli ' + goal.label + ' 🎉',
+      date: todayISO(),
+      isAchievement: true
+    });
+    await saveAchievements();
+    await saveEntries();
+
+    // buka form buat isi target baru
+    document.getElementById('goalEditForm').style.display = 'flex';
+    document.getElementById('goalLabelInput').value = '';
+    document.getElementById('goalTargetInput').value = '';
+    document.getElementById('goalLabelInput').focus();
+
+    render();
+    btn.disabled = false;
+  });
+
+  document.getElementById('transferBtn').addEventListener('click', async () => {
+    const from = document.getElementById('transferFrom').value;
+    const to = document.getElementById('transferTo').value;
+    const input = document.getElementById('transferAmountInput');
+    const noteInput = document.getElementById('transferNoteInput');
+    const amt = parseInt(input.value, 10);
+    const statusEl = document.getElementById('transferStatusMsg');
+
+    if (from === to) {
+      statusEl.textContent = 'Pos asal dan tujuan gak boleh sama.';
+      setTimeout(() => { statusEl.textContent = ''; }, 2500);
+      return;
+    }
+    if (!amt || amt <= 0) {
+      statusEl.textContent = 'Isi jumlahnya dulu ya.';
+      setTimeout(() => { statusEl.textContent = ''; }, 2500);
+      return;
+    }
+
+    const customNote = noteInput.value.trim();
+    const transferId = Date.now().toString();
+    const now = todayISO();
+
+    entries.push({
+      id: transferId + '-out',
+      category: from,
+      direction: 'pengeluaran',
+      amount: amt,
+      note: 'Transfer ke ' + categoryLabels[to] + (customNote ? ' — ' + customNote : ''),
+      date: now,
+      transferId,
+      isTransfer: true
+    });
+    entries.push({
+      id: transferId + '-in',
+      category: to,
+      direction: 'pemasukan',
+      amount: amt,
+      note: 'Transfer dari ' + categoryLabels[from] + (customNote ? ' — ' + customNote : ''),
+      date: now,
+      transferId,
+      isTransfer: true
+    });
+
+    input.value = '';
+    noteInput.value = '';
+    historyFilter = 'semua';
+    render();
+    statusEl.textContent = 'Transfer berhasil.';
+    setTimeout(() => { statusEl.textContent = ''; }, 2500);
+    await saveEntries();
+  });
+
+  document.getElementById('editGoalBtn').addEventListener('click', () => {
+    const form = document.getElementById('goalEditForm');
+    const showing = form.style.display !== 'none';
+    form.style.display = showing ? 'none' : 'flex';
+    if (!showing) {
+      document.getElementById('goalLabelInput').value = goal.label;
+      document.getElementById('goalTargetInput').value = goal.target;
+    }
+  });
+
+  document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+    const label = document.getElementById('goalLabelInput').value.trim();
+    const target = parseInt(document.getElementById('goalTargetInput').value, 10);
+    if (label) goal.label = label;
+    if (target && target > 0) goal.target = target;
+    document.getElementById('goalEditForm').style.display = 'none';
+    render();
+    await saveGoal();
+  });
+
+  setTodayText();
+  setCategory('tabungan');
+  setDirection('pemasukan');
+  loadData();
+</script>
+
+</body>
+</html>
